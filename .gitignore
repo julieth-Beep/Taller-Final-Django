@@ -1,0 +1,20 @@
+# Python / Django
+Backend/venv/
+__pycache__/
+*.pyc
+**/__pycache__/
+db.sqlite3
+
+# Node / Vite
+node_modules/
+dist/
+
+# Entorno
+.env
+
+# Editor
+.vscode/
+.idea/
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
