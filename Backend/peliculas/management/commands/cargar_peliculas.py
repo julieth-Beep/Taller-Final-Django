@@ -39,7 +39,16 @@ class Command(BaseCommand):
 
         try:
             antes = Pelicula.objects.count()
-            Pelicula.objects.bulk_create(peliculas_nuevas, batch_size=1000, ignore_conflicts=True)
+            Pelicula.objects.bulk_create(
+                peliculas_nuevas,
+                batch_size=1000,
+                update_conflicts=True,
+                unique_fields=['id_pelicula'],
+                update_fields=[
+                    'titulo', 'anio_lanzamiento', 'genero', 'pais_produccion',
+                    'presupuesto', 'ingreso', 'duracion_minutos', 'puntuacion',
+                ],
+            )
             despues = Pelicula.objects.count()
             self.stdout.write(self.style.SUCCESS(
                 f'¡Éxito! Leídas: {len(peliculas_nuevas)} · Nuevas: {despues - antes} · Total: {despues}'
