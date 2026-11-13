@@ -1,5 +1,3 @@
-"""Configuración de Django para el proyecto de Películas."""
-
 import os
 from pathlib import Path
 
