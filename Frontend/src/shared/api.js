@@ -1,7 +1,7 @@
 export const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://127.0.0.1:8000/api'
-  : 'https://peliculas-django.onrender.com/api';
-  
+  : '/api';
+
 export class FallaApi extends Error {
   constructor(tipo, mensaje) {
     super(mensaje)

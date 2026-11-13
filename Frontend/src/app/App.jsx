@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Explorador from '../features/explorador/Explorador';
 import Dashboard from '../features/dashboard/Dashboard';
 import Login from '../features/auth/Login';
+import Gestion from '../features/gestion/Gestion';
 
 // logo imagenn sidebar
 const IconLogo = () => (
@@ -104,6 +105,14 @@ export default function App() {
             <IconProduct />
             Películas
           </button>
+
+          <button
+            className={`nav-item ${vista === 'gestion' ? 'active' : ''}`}
+            onClick={() => setVista('gestion')}
+          >
+            <IconProduct />
+            Gestión
+          </button>
         </nav>
 
         <div className="upgrade-card">
@@ -124,6 +133,7 @@ export default function App() {
       <main className="main-content">
         {vista === 'explorador' && <Explorador />}
         {vista === 'dashboard' && <Dashboard />}
+        {vista === 'gestion' && <Gestion token={token} />}
       </main>
     </div>
   );

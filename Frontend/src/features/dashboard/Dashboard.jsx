@@ -39,24 +39,44 @@ export default function Dashboard() {
   const [topPeliculas, setTopPeliculas] = useState([]);
   const [error, setError] = useState(null);
 
+  const [genero, setGenero] = useState('');
+  const [anio, setAnio] = useState('');
+  const [pais, setPais] = useState('');
+  const [listaAnios, setListaAnios] = useState([]);
+
+  useEffect(() => {
+    pedirOExplotar(`${API_URL}/peliculas/anios/`)
+      .then(({ datos }) => setListaAnios(datos))
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     async function traer() {
       try {
-        const { datos: stats } = await pedirOExplotar(`${API_URL}/peliculas/estadisticas/`);
+        const params = new URLSearchParams();
+        if (genero) params.append('genero', genero);
+        if (anio) params.append('anio', anio);
+        if (pais) params.append('pais', pais);
+        const qs = params.toString() ? `?${params.toString()}` : '';
+
+        const [{ datos: stats }, { datos: top }] = await Promise.all([
+          pedirOExplotar(`${API_URL}/peliculas/estadisticas/${qs}`),
+          pedirOExplotar(`${API_URL}/peliculas/top/${qs}`),
+        ]);
         setDatos(stats);
-
-        const { datos: top } = await pedirOExplotar(`${API_URL}/peliculas/top/`);
         setTopPeliculas(top);
-
+        setError(null);
       } catch (err) {
         setError(err.message);
       }
     }
     traer();
-  }, []);
+  }, [genero, anio, pais]);
 
   if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
   if (!datos) return <p>Cargando estadísticas...</p>;
+
+  const total = datos.metricas.total_peliculas || 1;
 
   const cardStyle = {
     background: '#ffffff',
@@ -81,7 +101,7 @@ export default function Dashboard() {
   };
 
   const datosPaises = (datos.por_pais?.slice(0, 4) || []).map((item, index) => {
-    const percentage = Math.round((item.conteo / datos.metricas.total_peliculas) * 100);
+    const percentage = Math.round((item.conteo / total) * 100);
     const coloresAnillo = ['#c084fc', '#0ea5e9', '#818cf8', '#6ee7b7'];
     return {
       name: item.pais_produccion || 'N/A',
@@ -112,6 +132,26 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* filtros dinámicos */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <select value={genero} onChange={(e) => setGenero(e.target.value)} className="input-pill">
+          <option value="">Todos los géneros</option>
+          {datos.opciones?.generos.map((g) => <option key={g} value={g}>{g}</option>)}
+        </select>
+        <select value={anio} onChange={(e) => setAnio(e.target.value)} className="input-pill">
+          <option value="">Todos los años</option>
+          {listaAnios.map((a) => <option key={a} value={a}>{a}</option>)}
+        </select>
+        <select value={pais} onChange={(e) => setPais(e.target.value)} className="input-pill">
+          <option value="">Todos los países</option>
+          {datos.opciones?.paises.map((p) => <option key={p} value={p}>{p}</option>)}
+        </select>
+        {(genero || anio || pais) && (
+          <button type="button" className="btn-pag" onClick={() => { setGenero(''); setAnio(''); setPais(''); }}>
+            Limpiar filtros
+          </button>
+        )}
+      </div>
 
       {/* tarjetas */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexShrink: 0 }}>
@@ -134,7 +174,7 @@ export default function Dashboard() {
           <div>
             <p style={{ margin: 0, fontSize: '11px', color: '#6b7280', fontWeight: 600, textTransform: 'uppercase' }}>Ingresos Totales</p>
             <p style={{ margin: '2px 0 0 0', fontSize: '24px', fontWeight: 700, color: '#111827', lineHeight: 1 }}>
-              ${Number(datos.metricas.ingresos_totales).toLocaleString('es-CO')}
+              ${Number(datos.metricas.ingresos_totales || 0).toLocaleString('es-CO')}
             </p>
           </div>
         </div>
@@ -146,7 +186,7 @@ export default function Dashboard() {
           <div>
             <p style={{ margin: 0, fontSize: '11px', color: '#6b7280', fontWeight: 600, textTransform: 'uppercase' }}>Promedio Ingresos</p>
             <p style={{ margin: '2px 0 0 0', fontSize: '24px', fontWeight: 700, color: '#111827', lineHeight: 1 }}>
-              ${Number(datos.metricas.promedio_ingresos).toLocaleString('es-CO')}
+              ${Number(datos.metricas.promedio_ingresos || 0).toLocaleString('es-CO')}
             </p>
           </div>
         </div>
@@ -164,7 +204,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/*graficos (izquierda) y tabla (derecha) */}
+      {/* graficos (izquierda) y tabla (derecha) */}
       <div style={{
         flex: 1,
         display: 'grid',
@@ -173,14 +213,16 @@ export default function Dashboard() {
         marginBottom: '20px'
       }}>
 
-        {/*izquierda */}
+        {/* izquierda */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-          {/*top generos */}
+          {/* top generos */}
           <div style={{ ...cardStyle, padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#271111', margin: 0 }}>Top Géneros</h3>
-              <span style={{ fontSize: '12px', color: '#6b7280', border: '1px solid #e5e7eb', padding: '4px 10px', borderRadius: '20px' }}>Global</span>
+              <span style={{ fontSize: '12px', color: '#6b7280', border: '1px solid #e5e7eb', padding: '4px 10px', borderRadius: '20px' }}>
+                {genero || pais || anio ? 'Filtrado' : 'Global'}
+              </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ width: '180px', height: '180px' }}>
@@ -210,14 +252,14 @@ export default function Dashboard() {
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: COLORS[index % COLORS.length] }}></div>
                       <span style={{ color: '#4b5563' }}>{item.genero}</span>
                     </div>
-                    <span style={{ fontWeight: 600, color: '#111827' }}>{Math.round((item.conteo / datos.metricas.total_peliculas) * 100)}%</span>
+                    <span style={{ fontWeight: 600, color: '#111827' }}>{Math.round((item.conteo / total) * 100)}%</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/*top paises productores*/}
+          {/* top paises productores */}
           <div style={{ ...cardStyle, padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: 0 }}>Top Países Productores</h3>
@@ -247,11 +289,11 @@ export default function Dashboard() {
                     startAngle={90}
                     endAngle={-270}
                   >
-                    <RadialBar 
-                      background={{ fill: '#f3f4f6' }} 
-                      dataKey="percentage" 
-                      cornerRadius={10} 
-                      innerRadius={(data) => data.index * 8 + 10} 
+                    <RadialBar
+                      background={{ fill: '#f3f4f6' }}
+                      dataKey="percentage"
+                      cornerRadius={10}
+                      innerRadius={(data) => data.index * 8 + 10}
                     />
                   </RadialBarChart>
                 </ResponsiveContainer>
@@ -262,15 +304,12 @@ export default function Dashboard() {
 
         </div>
 
-        {/*derecha*/}
-
-        {/* tabla*/}
+        {/* derecha: tabla */}
         <div style={{ ...cardStyle, padding: 0, minHeight: 0 }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
             <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#271411', margin: 0 }}>Top 10 Películas con Más Ingresos</h3>
           </div>
 
-          {/* scroll*/}
           <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, maxHeight: '420px' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead style={{ background: '#f9fafb', position: 'sticky', top: 0, zIndex: 10 }}>
@@ -302,10 +341,10 @@ export default function Dashboard() {
 
       </div>
 
-      {/* inferior*/}
+      {/* inferior */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
 
-        {/* peli x año*/}
+        {/* pelis por año */}
         <div style={{ ...cardStyle, flex: 1, height: '300px' }}>
           <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 10px 0', flexShrink: 0 }}>Películas por Año</h3>
           <div style={{ flex: 1, minHeight: 0 }}>
@@ -338,7 +377,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/*peli + vistas*/}
+        {/* más taquilleras */}
         <div style={{ ...cardStyle, padding: '20px', height: '300px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: 0 }}>Películas más Taquilleras</h3>
