@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { API_URL } from '../../shared/api';
 
-export default function Login() {
+export default function Login({ onLoginSuccess }) {
   const [usuario, setUsuario] = useState('');
   const [clave, setClave] = useState('');
-  const [token, setToken] = useState(null);
-  const [mensaje, setMensaje] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMensaje('');
-    setToken(null);
+    setError('');
+    setLoading(true);
 
     try {
       const respuesta = await fetch(`${API_URL}/auth/login/`, {
@@ -22,39 +22,65 @@ export default function Login() {
       const datos = await respuesta.json();
 
       if (respuesta.ok && datos.token) {
-        setToken(datos.token);
-        setMensaje('¡Login exitoso! Token guardado en memoria.');
+        onLoginSuccess(datos.token);
       } else {
-        setMensaje(datos.detalle || 'Credenciales inválidas.');
+        setError(datos.detalle || 'Credenciales inválidas.');
       }
-    } catch (error) {
-      setMensaje('Error de conexión con el servidor.');
+    } catch (err) {
+      setError('Error de conexión con el servidor.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Iniciar Sesión</h2>
-      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <input
-          type="text"
-          placeholder="Usuario"
-          value={usuario}
-          onChange={(e) => setUsuario(e.target.value)}
-          style={{ padding: '10px' }}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={clave}
-          onChange={(e) => setClave(e.target.value)}
-          style={{ padding: '10px' }}
-        />
-        <button type="submit" style={{ padding: '10px', cursor: 'pointer' }}>Entrar</button>
-      </form>
+    <div className="layout">
+      <div 
+        className="imageSide" 
+        style={{ backgroundImage: `url(https://i.pinimg.com/736x/24/d2/9a/24d29a9287ab18e1f22fb5d756e0a961.jpg)` }}
+      >
+        <div className="imageOverlay">
+          <h1 className="welcomeText">CINE</h1>
+        </div>
+      </div>
 
-      {mensaje && <p style={{ marginTop: '20px', color: token ? 'green' : 'red' }}>{mensaje}</p>}
-      {token && <p style={{ wordBreak: 'break-all', fontSize: '12px' }}><strong>Tu Token:</strong> {token}</p>}
+      <div className="formSide">
+        <div className="formContainer">
+          <div className="brand">
+            <h1 className="brandTitle">Catálogo de Películas</h1>
+            <p className="brandSubtitle">Inicia sesión para gestionar el catálogo</p>
+          </div>
+
+          <form className="form" onSubmit={handleSubmit}>
+            {error && (
+              <div style={{ color: '#ef4444', fontSize: '14px', textAlign: 'center' }}>
+                {error}
+              </div>
+            )}
+            
+            <input 
+              type="text" 
+              placeholder="Usuario" 
+              value={usuario} 
+              onChange={(e) => setUsuario(e.target.value)} 
+              required 
+            />
+            <input 
+              type="password" 
+              placeholder="Contraseña" 
+              value={clave} 
+              onChange={(e) => setClave(e.target.value)} 
+              required 
+            />
+
+            <div className="actions">
+              <button type="submit" disabled={loading}>
+                {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

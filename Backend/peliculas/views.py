@@ -13,24 +13,21 @@ from django.utils.decorators import method_decorator
 from .models import Pelicula
 from .serializers import PeliculaSerializer
 
-# 1. Vista para el CRUD, Búsqueda, Ordenamiento y Filtros
 class PeliculaViewSet(viewsets.ModelViewSet):
     queryset = Pelicula.objects.all()
     serializer_class = PeliculaSerializer
 
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['titulo', 'genero']
-    ordering_fields = ['anio_lanzamiento', 'ingreso', 'presupuesto', 'puntuacion']
+    ordering_fields = ['anio_lanzamiento', 'ingreso', 'presupuesto', 'puntuacion', 'titulo']
 
     def get_queryset(self):
         queryset = super().get_queryset()
         
-        # Filtro por género
         genero = self.request.query_params.get('genero')
         if genero:
             queryset = queryset.filter(genero__iexact=genero)
             
-        # Filtro por rango de años (usando int para evitar problemas de tipo)
         anio_inicio = self.request.query_params.get('anio_inicio')
         anio_fin = self.request.query_params.get('anio_fin')
         
@@ -43,7 +40,6 @@ class PeliculaViewSet(viewsets.ModelViewSet):
             
         return queryset
 
-# 2. Vista de Estadísticas Dinámicas
 class EstadisticasView(APIView):
     def get(self, request):
         genero = request.query_params.get('genero')
@@ -76,7 +72,6 @@ class EstadisticasView(APIView):
             'por_anio': list(por_anio)
         })
 
-# 3. Vista para el Ranking Top 10
 class TopPeliculasView(APIView):
     """GET /api/peliculas/top/ — Devuelve las 10 películas con más ingresos."""
     def get(self, request):
@@ -85,7 +80,6 @@ class TopPeliculasView(APIView):
         )
         return Response(list(top))
 
-# 4. Login (Token)
 @method_decorator(csrf_exempt, name='dispatch')
 class LlaveView(APIView):
     def post(self, request):
@@ -99,7 +93,6 @@ class LlaveView(APIView):
         llave, _ = Token.objects.get_or_create(user=usuario)
         return Response({'token': llave.key, 'usuario': usuario.username})
 
-# 5. Operación Protegida (Borrado)
 class LimpiezaCineView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -112,3 +105,11 @@ class LimpiezaCineView(APIView):
         peliculas_vacias.delete()
         
         return Response({'eliminados': cantidad_borrada, 'mensaje': 'Películas sin ingresos eliminadas'})
+
+
+class AniosDisponiblesView(APIView):
+    """GET /api/peliculas/anios/ — Devuelve una lista de años únicos."""
+    def get(self, request):
+        anios = Pelicula.objects.values_list('anio_lanzamiento', flat=True).distinct().order_by('-anio_lanzamiento')
+        anios_validos = [a for a in anios if a and a > 0]
+        return Response(anios_validos)

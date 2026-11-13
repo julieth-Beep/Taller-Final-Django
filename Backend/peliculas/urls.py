@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import PeliculaViewSet, EstadisticasView, LlaveView, LimpiezaCineView, TopPeliculasView
+from .views import PeliculaViewSet, EstadisticasView, LlaveView, LimpiezaCineView, TopPeliculasView, AniosDisponiblesView
 
 router = DefaultRouter()
 router.register('peliculas', PeliculaViewSet, basename='pelicula')
@@ -10,5 +10,6 @@ urlpatterns = [
     path('peliculas/top/', TopPeliculasView.as_view()),
     path('auth/login/', LlaveView.as_view(), name='llave-de-acceso'),
     path('peliculas/limpieza/', LimpiezaCineView.as_view(), name='limpieza'),
+    path('peliculas/anios/', AniosDisponiblesView.as_view(), name='anios-disponibles'),
     *router.urls,
 ]
