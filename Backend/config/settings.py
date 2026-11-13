@@ -1,3 +1,5 @@
+"""Configuración de Django para el proyecto de Películas."""
+
 import os
 from pathlib import Path
 
@@ -12,7 +14,9 @@ SECRET_KEY = os.environ['SECRET_KEY']
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()]
+
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
+CSRF_TRUSTED_ORIGINS += ['https://*.onrender.com'] 
 
 
 INSTALLED_APPS = [
@@ -44,6 +48,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
 ]
+CORS_ALLOWED_ORIGINS += ['https://*.onrender.com']
 
 ROOT_URLCONF = 'config.urls'
 
@@ -63,7 +68,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
 
 if os.getenv('DATABASE_URL'):
     DATABASES = {
@@ -109,7 +113,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static_frontend']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'peliculas.paginacion.PeliculasPagination',
+    'DEFAULT_PAGINATION_CLASS': 'peliculas.paginacion.PeliculasPagination', 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
