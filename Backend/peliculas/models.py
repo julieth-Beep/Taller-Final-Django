@@ -5,6 +5,7 @@ class Pelicula(models.Model):
     titulo = models.CharField(max_length=100)
     anio_lanzamiento = models.IntegerField()
     genero = models.CharField(max_length=100)
+    pais_produccion = models.CharField(max_length=100, null=True, blank=True)
     presupuesto = models.DecimalField(max_digits=15, decimal_places=2)
     ingreso = models.DecimalField(max_digits=15, decimal_places=2)
     duracion_minutos = models.IntegerField()

@@ -12,6 +12,16 @@ def extraer_genero(texto_genero):
         pass
     return 'Desconocido'
 
+def extraer_pais(texto_pais):
+    """Extrae el primer país productor del texto JSON que trae el CSV."""
+    try:
+        lista_paises = json.loads(texto_pais)
+        if lista_paises and isinstance(lista_paises, list):
+            return lista_paises[0].get('name', 'Desconocido')
+    except (json.JSONDecodeError, TypeError, IndexError):
+        pass
+    return 'Desconocido'
+
 def leer_archivo_csv(ruta_archivo):
     peliculas = []
     try:
@@ -35,7 +45,8 @@ def leer_archivo_csv(ruta_archivo):
                         'id_pelicula': id_pelicula,
                         'titulo': str(fila.get('original_title', 'Sin titulo')).strip()[:100],
                         'anio_lanzamiento': anio_int,
-                        'genero': extraer_genero(fila.get('genres', '')), # <-- AQUÍ SE USA LA FUNCIÓN
+                        'genero': extraer_genero(fila.get('genres', '')),
+                        'pais_produccion': extraer_pais(fila.get('production_countries', '')),
                         'presupuesto': Decimal(presupuesto_str).quantize(Decimal('0.01')),
                         'ingreso': Decimal(ingreso_str).quantize(Decimal('0.01')),
                         'duracion_minutos': int(duracion_str) if duracion_str.isdigit() else 0,

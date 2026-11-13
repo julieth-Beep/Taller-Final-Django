@@ -52,6 +52,7 @@ class EstadisticasView(APIView):
             total_peliculas=Count('id_pelicula'),
             ingresos_totales=Sum('ingreso'),
             promedio_ingresos=Avg('ingreso'),
+            promedio_puntuacion=Avg('puntuacion'),
             max_ingresos=Max('ingreso'),
             min_ingresos=Min('ingreso')
         )
@@ -66,10 +67,15 @@ class EstadisticasView(APIView):
             ingresos_anuales=Sum('ingreso')
         ).order_by('anio_lanzamiento')
 
+        por_pais = queryset.values('pais_produccion').annotate(
+            conteo=Count('id_pelicula')
+        ).order_by('-conteo')[:4]
+
         return Response({
             'metricas': metricas,
             'por_genero': list(por_genero),
-            'por_anio': list(por_anio)
+            'por_anio': list(por_anio),
+            'por_pais': list(por_pais) 
         })
 
 class TopPeliculasView(APIView):
@@ -105,9 +111,7 @@ class LimpiezaCineView(APIView):
         
         return Response({'eliminados': cantidad_borrada, 'mensaje': 'Películas sin ingresos eliminadas'})
 
-
 class AniosDisponiblesView(APIView):
-    """GET /api/peliculas/anios/ — Devuelve una lista de años únicos."""
     def get(self, request):
         anios = Pelicula.objects.values_list('anio_lanzamiento', flat=True).distinct().order_by('-anio_lanzamiento')
         anios_validos = [a for a in anios if a and a > 0]

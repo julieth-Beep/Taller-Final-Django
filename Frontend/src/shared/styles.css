@@ -384,3 +384,13 @@ html, body {
   color: #ffffff;
   border-color: #000000;
 }
+
+/* Ocultar scrollbars a nivel global */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

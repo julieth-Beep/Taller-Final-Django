@@ -26,6 +26,7 @@ class Command(BaseCommand):
                 titulo=datos['titulo'],
                 anio_lanzamiento=datos['anio_lanzamiento'],
                 genero=datos['genero'],
+                pais_produccion=datos['pais_produccion'],
                 presupuesto=datos['presupuesto'],
                 ingreso=datos['ingreso'],
                 duracion_minutos=datos['duracion_minutos'],
