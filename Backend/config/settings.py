@@ -109,7 +109,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static_frontend']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'peliculas.paginacion.PeliculasPagination', # <-- CAMBIO AQUÍ: Ahora es peliculas.paginacion
+    'DEFAULT_PAGINATION_CLASS': 'peliculas.paginacion.PeliculasPagination',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',

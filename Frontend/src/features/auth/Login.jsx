@@ -40,7 +40,7 @@ export default function Login({ onLoginSuccess }) {
         style={{ backgroundImage: `url(https://i.pinimg.com/736x/24/d2/9a/24d29a9287ab18e1f22fb5d756e0a961.jpg)` }}
       >
         <div className="imageOverlay">
-          <h1 className="welcomeText">CINE</h1>
+          <h1 className="welcomeText">CINEMA</h1>
         </div>
       </div>
 

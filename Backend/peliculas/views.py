@@ -73,7 +73,6 @@ class EstadisticasView(APIView):
         })
 
 class TopPeliculasView(APIView):
-    """GET /api/peliculas/top/ — Devuelve las 10 películas con más ingresos."""
     def get(self, request):
         top = Pelicula.objects.order_by('-ingreso')[:10].values(
             'titulo', 'ingreso', 'anio_lanzamiento', 'puntuacion'

@@ -3,7 +3,7 @@ import Explorador from '../features/explorador/Explorador';
 import Dashboard from '../features/dashboard/Dashboard';
 import Login from '../features/auth/Login';
 
-// --- COMPONENTES DE ÍCONOS SVG ---
+// logo imagenn sidebar
 const IconLogo = () => (
   <img
     src="https://i.pinimg.com/1200x/17/9f/24/179f24fd2833f6f8db920d6c3486b034.jpg"
@@ -53,12 +53,12 @@ export default function App() {
     setMostrarModal(false);
   };
 
-  // 1. Vista de Login
+  // vista login
   if (!token) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // 2. Vista del Modal de Éxito
+  // vista de modal de exito
   if (mostrarModal) {
     return (
       <div className="modal-overlay">
@@ -69,7 +69,7 @@ export default function App() {
               <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
           </div>
-          <h2 className="modal-title">¡Login Exitoso!</h2>
+          <h2 className="modal-title">Login Exitoso!</h2>
           <p className="modal-text">Tu token ha sido guardado correctamente.<br /><br /><strong>Token:</strong> {token.substring(0, 20)}...</p>
           <button className="modal-button" onClick={() => setMostrarModal(false)}>
             Entrar al Catálogo
@@ -79,10 +79,9 @@ export default function App() {
     );
   }
 
-  // 3. Vista Principal (App con Sidebar)
+  //vista principal
   return (
     <div className="app-layout">
-      {/* BARRA LATERAL */}
       <aside className="sidebar">
         <div className="sidebar-logo">
           <IconLogo />
@@ -121,7 +120,7 @@ export default function App() {
         </button>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL */}
+      {/* mainn */}
       <main className="main-content">
         {vista === 'explorador' && <Explorador />}
         {vista === 'dashboard' && <Dashboard />}

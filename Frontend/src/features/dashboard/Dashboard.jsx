@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { API_URL, pedirOExplotar } from '../../shared/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Íconos para las tarjetas superiores
 const IconTicket = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"></path>
@@ -34,10 +33,10 @@ export default function Dashboard() {
       try {
         const { datos: stats } = await pedirOExplotar(`${API_URL}/peliculas/estadisticas/`);
         setDatos(stats);
-        
+
         const { datos: top } = await pedirOExplotar(`${API_URL}/peliculas/top/`);
         setTopPeliculas(top);
-        
+
       } catch (err) {
         setError(err.message);
       }
@@ -48,7 +47,6 @@ export default function Dashboard() {
   if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
   if (!datos) return <p>Cargando estadísticas...</p>;
 
-  // Estilos reutilizables para las tarjetas blancas
   const cardStyle = {
     background: '#ffffff',
     padding: '20px',
@@ -60,38 +58,37 @@ export default function Dashboard() {
     overflow: 'hidden'
   };
 
+  const card = {
+    background: '#ffffff',
+    padding: '20px 28px',
+    borderRadius: '16px',
+    border: '1px solid #e5e7eb',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+  };
+
   return (
-    <div style={{ 
-      height: '100%', 
-      display: 'flex', 
-      flexDirection: 'column', 
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
       fontFamily: "'Inter', sans-serif",
-      overflow: 'hidden' // Evita el scroll general
+      overflow: 'hidden'
     }}>
-      
-      {/* 1. Header / Banner compacto */}
-      <div style={{
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-        borderRadius: '16px',
-        padding: '20px 28px',
-        color: 'white',
-        marginBottom: '20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexShrink: 0 // Evita que se comprima
-      }}>
+
+      <div style={{ ...card, flexDirection: 'row', alignItems: 'center', gap: '16px', marginBottom: '24px', padding: '30px 28px', flex: 'none' }}>
         <div>
-          <h2 style={{ margin: '0 0 4px 0', fontSize: '24px', fontWeight: 700 }}>
-            ¡Hola de nuevo! 👋
-          </h2>
-          <p style={{ margin: 0, fontSize: '14px', opacity: 0.9 }}>
-            Aquí tienes el resumen de tu catálogo cinematográfico.
+          <p style={{ margin: '2px 0 0 0', fontSize: '24px', fontWeight: 700, color: '#111827', lineHeight: 1 }}>
+            Hola de nuevo! 👋
           </p>
+          <p style={{ margin: '6px 0 0 0', fontSize: '11px', color: '#6b7280', fontWeight: 600, textTransform: 'uppercase' }}>Aquí tienes el resumen de tu catálogo cinematográfico.</p>
         </div>
       </div>
 
-      {/* 2. Tarjetas de Métricas */}
+
+      {/* tarjetas */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', flexShrink: 0 }}>
         <div style={{ ...cardStyle, flex: 1, flexDirection: 'row', alignItems: 'center', gap: '16px' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -130,19 +127,18 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 3. Zona Principal: Gráficos (Izquierda) y Tabla (Derecha) */}
-      <div style={{ 
-        flex: 1, 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1fr', // Dos columnas iguales
-        gap: '20px', 
-        minHeight: 0 // Permite que el grid se adapte al 100% de la altura disponible
+      {/*graficos (izquierda) y tabla (derecha) */}
+      <div style={{
+        flex: 1,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr', 
+        gap: '20px',
+        minHeight: 0
       }}>
-        
-        {/* Columna Izquierda */}
+
+        {/*izquierda */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', minHeight: 0 }}>
-          
-          {/* Gráfico 1 */}
+
           <div style={{ ...cardStyle, flex: 1 }}>
             <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 10px 0', flexShrink: 0 }}>Top Géneros por Cantidad</h3>
             <div style={{ flex: 1, minHeight: 0 }}>
@@ -158,7 +154,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Gráfico 2 */}
           <div style={{ ...cardStyle, flex: 1 }}>
             <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 10px 0', flexShrink: 0 }}>Películas por Año</h3>
             <div style={{ flex: 1, minHeight: 0 }}>
@@ -176,13 +171,13 @@ export default function Dashboard() {
 
         </div>
 
-        {/* Columna Derecha (Tabla Top 10) */}
+        {/*derecha*/}
         <div style={{ ...cardStyle, padding: 0, minHeight: 0 }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
             <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: 0 }}>Top 10 Películas con Más Ingresos</h3>
           </div>
-          
-          {/* Contenedor con scroll interno por si la pantalla es muy pequeña */}
+
+          {/* scroll tabla*/}
           <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead style={{ background: '#f9fafb', position: 'sticky', top: 0, zIndex: 10 }}>
