@@ -150,3 +150,46 @@ class AniosDisponiblesView(APIView):
         anios = Pelicula.objects.values_list('anio_lanzamiento', flat=True).distinct().order_by('-anio_lanzamiento')
         anios_validos = [a for a in anios if a and a > 0]
         return Response(anios_validos)
+
+class BorrarCacheView(APIView):
+    """Borra TODAS las películas. Operación protegida por token."""
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        if request.data.get('confirmar') is not True:
+            return Response(
+                {'detalle': 'Debes confirmar con {"confirmar": true}'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        total = Pelicula.objects.count()
+        Pelicula.objects.all().delete()
+        return Response({
+            'eliminados': total,
+            'mensaje': 'Caché de películas borrado por completo',
+            'usuario': request.user.username,
+        })
+
+
+class RecargarDatosView(APIView):
+    """Vuelve a descargar el CSV y repuebla la base de datos. Protegida por token."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from django.core.management import call_command
+        from io import StringIO
+
+        try:
+            buffer = StringIO()
+            call_command('cargar_peliculas', stdout=buffer)
+            total = Pelicula.objects.count()
+            return Response({
+                'mensaje': 'Datos recargados correctamente desde el CSV público',
+                'total_peliculas': total,
+                'detalle_log': buffer.getvalue(),
+                'usuario': request.user.username,
+            })
+        except Exception as e:
+            return Response(
+                {'detalle': f'Error al recargar: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
