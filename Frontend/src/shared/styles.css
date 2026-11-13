@@ -385,7 +385,7 @@ html, body {
   border-color: #000000;
 }
 
-/* Ocultar scrollbars a nivel global */
+/* Ocultar scrollbars*/
 ::-webkit-scrollbar {
   display: none;
 }

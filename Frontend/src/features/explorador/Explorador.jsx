@@ -28,6 +28,8 @@ export default function Explorador() {
     const [genero, setGenero] = useState('');
     const [anioSeleccionado, setAnioSeleccionado] = useState(''); 
     const [listaAnios, setListaAnios] = useState([]); 
+    
+    const [ordenamiento, setOrdenamiento] = useState('titulo');
 
     useEffect(() => {
         async function cargarAnios() {
@@ -43,7 +45,7 @@ export default function Explorador() {
 
     const construirUrl = (paginaActual) => {
         const params = new URLSearchParams();
-        params.append('ordering', 'titulo'); 
+        params.append('ordering', ordenamiento); 
         params.append('page', paginaActual);
         params.append('page_size', paginaSize); 
         if (busqueda) params.append('search', busqueda);
@@ -73,11 +75,36 @@ export default function Explorador() {
             }
         }
         traer();
-    }, [pagina, busqueda, genero, anioSeleccionado, paginaSize]);
+    }, [pagina, busqueda, genero, anioSeleccionado, paginaSize, ordenamiento]);
 
     const handleBuscar = (e) => {
         e.preventDefault();
         setPagina(1); 
+    };
+
+    const handleOrdenar = (columna) => {
+        setPagina(1);
+        if (ordenamiento === columna) {
+            // Si ya estaba en orden ascendente (A-Z, menor a mayor), lo pasa a descendente
+            setOrdenamiento(`-${columna}`);
+        } else {
+            // Si estaba en descendente o en otra columna, lo pasa a ascendente
+            setOrdenamiento(columna);
+        }
+    };
+
+    const IconoFlechas = ({ columna }) => {
+        const activo = ordenamiento === columna || ordenamiento === `-${columna}`;
+        const descendente = ordenamiento === `-${columna}`;
+
+        return (
+            <span style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '6px', opacity: activo ? 1 : 0.4 }}>
+                <svg width="10" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="17 11 12 6 7 11" style={{ opacity: !descendente && activo ? 1 : 0.3 }} />
+                    <polyline points="7 13 12 18 17 13" style={{ opacity: descendente && activo ? 1 : 0.3 }} />
+                </svg>
+            </span>
+        );
     };
 
     const exportarCSV = async () => {
@@ -193,12 +220,20 @@ export default function Explorador() {
                 <table className="tabla">
                     <thead>
                         <tr>
-                            <th className="th">Título</th>
-                            <th className="th">Año</th>
+                            <th className="th" onClick={() => handleOrdenar('titulo')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                                Título <IconoFlechas columna="titulo" />
+                            </th>
+                            <th className="th" onClick={() => handleOrdenar('anio_lanzamiento')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                                Año <IconoFlechas columna="anio_lanzamiento" />
+                            </th>
                             <th className="th">Género</th>
                             <th className="th">Presupuesto</th>
-                            <th className="th">Ingresos</th>
-                            <th className="th">Puntuación</th>
+                            <th className="th" onClick={() => handleOrdenar('ingreso')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                                Ingresos <IconoFlechas columna="ingreso" />
+                            </th>
+                            <th className="th" onClick={() => handleOrdenar('puntuacion')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                                Puntuación <IconoFlechas columna="puntuacion" />
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
