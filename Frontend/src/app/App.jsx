@@ -3,6 +3,7 @@ import Explorador from '../features/explorador/Explorador';
 import Dashboard from '../features/dashboard/Dashboard';
 import Login from '../features/auth/Login';
 import Gestion from '../features/gestion/Gestion';
+import Inicio from '../features/inicio/Inicio';
 
 // logo imagenn sidebar
 const IconLogo = () => (
@@ -42,6 +43,7 @@ export default function App() {
   const [token, setToken] = useState(null);
   const [vista, setVista] = useState('explorador');
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [pantalla, setPantalla] = useState('inicio');
 
   const handleLoginSuccess = (nuevoToken) => {
     setToken(nuevoToken);
@@ -52,11 +54,29 @@ export default function App() {
     setToken(null);
     setVista('explorador');
     setMostrarModal(false);
+    setPantalla('inicio');
   };
 
-  // vista login
+  // home e inicio de sesión (antes de tener token)
   if (!token) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    if (pantalla === 'inicio') {
+      return <Inicio onIrALogin={() => setPantalla('login')} />;
+    }
+    return (
+      <>
+        <button
+          onClick={() => setPantalla('inicio')}
+          style={{
+            position: 'fixed', top: 16, left: 16, zIndex: 50, border: 'none', cursor: 'pointer',
+            padding: '10px 18px', borderRadius: 999, fontWeight: 700, fontSize: 13,
+            background: 'rgba(255,255,255,0.92)', color: '#8a5cc2', boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
+          }}
+        >
+          ← Volver al inicio
+        </button>
+        <Login onLoginSuccess={handleLoginSuccess} />
+      </>
+    );
   }
 
   // vista de modal de exito
